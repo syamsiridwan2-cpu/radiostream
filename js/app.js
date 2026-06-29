@@ -26,6 +26,8 @@ const state = {
     currentView: 'home',
     currentGenre: null,
     _searchTimer: null,
+    sleepTimer: null,
+    sleepTimerEnd: null,
     audio: null,
     stationGrid: null,
     statusMsg: null,
@@ -147,6 +149,8 @@ function setStaticIcons() {
     if (muteBtn) muteBtn.innerHTML = ICON.volume;
     var moreBtn = $('playerMoreBtn');
     if (moreBtn) moreBtn.innerHTML = ICON.more;
+    var sleepBtn = $('sleepTimerBtn');
+    if (sleepBtn) sleepBtn.innerHTML = '<span class="di-icon">⏰</span><span class="di-label">Sleep Timer</span>';
     var dropFav = $('toggleFavBtn');
     if (dropFav) { var di = dropFav.querySelector('.di-icon'); if (di) di.innerHTML = ICON.star; }
     var dropShare = $('shareStationBtn');
@@ -187,6 +191,80 @@ function updateToggleFavIcon(uuid) {
     favBtn.classList.toggle('active', isFav);
     var di = favBtn.querySelector('.di-icon');
     if (di) di.innerHTML = isFav ? ICON.heartFill : ICON.heart;
+}
+
+// ============================================================
+//  SLEEP TIMER
+// ============================================================
+function startSleepTimer(minutes) {
+    cancelSleepTimer();
+    var endTime = Date.now() + minutes * 60 * 1000;
+    state.sleepTimerEnd = endTime;
+    localStorage.setItem('radio_sleep_end', String(endTime));
+    state.sleepTimer = setInterval(function() {
+        var remaining = Math.max(0, Math.round((state.sleepTimerEnd - Date.now()) / 1000));
+        var countdownEl = $('sleepTimerCountdown');
+        if (countdownEl) {
+            var m = Math.floor(remaining / 60);
+            var s = remaining % 60;
+            countdownEl.textContent = m + 'm ' + s + 's';
+        }
+        if (remaining <= 0) {
+            cancelSleepTimer();
+            state.audio.pause();
+            showToast('Sleep timer: audio berhenti');
+        }
+    }, 1000);
+    showSleepTimerActive();
+    showToast('Timer ' + minutes + ' menit diaktifkan');
+}
+
+function cancelSleepTimer() {
+    if (state.sleepTimer) { clearInterval(state.sleepTimer); state.sleepTimer = null; }
+    state.sleepTimerEnd = null;
+    localStorage.removeItem('radio_sleep_end');
+    var timerDiv = $('sleepTimerActive');
+    if (timerDiv) timerDiv.style.display = 'none';
+}
+
+function showSleepTimerActive() {
+    var timerDiv = $('sleepTimerActive');
+    var optionsDiv = $('sleepTimerOptions');
+    var customDiv = document.querySelector('.sleep-timer-custom');
+    if (timerDiv) timerDiv.style.display = 'block';
+    if (optionsDiv) optionsDiv.style.display = 'none';
+    if (customDiv) customDiv.style.display = 'none';
+}
+
+function showSleepTimerModal() {
+    var modal = $('sleepTimerModal');
+    if (!modal) return;
+
+    if (state.sleepTimerEnd) {
+        showSleepTimerActive();
+    } else {
+        var timerDiv = $('sleepTimerActive');
+        var optionsDiv = $('sleepTimerOptions');
+        var customDiv = document.querySelector('.sleep-timer-custom');
+        if (timerDiv) timerDiv.style.display = 'none';
+        if (optionsDiv) optionsDiv.style.display = 'flex';
+        if (customDiv) customDiv.style.display = 'flex';
+    }
+
+    modal.style.display = 'flex';
+}
+
+function restoreSleepTimer() {
+    var saved = localStorage.getItem('radio_sleep_end');
+    if (saved) {
+        var endTime = parseInt(saved, 10);
+        var remaining = Math.max(0, Math.round((endTime - Date.now()) / 60000));
+        if (remaining > 0) {
+            startSleepTimer(remaining);
+        } else {
+            localStorage.removeItem('radio_sleep_end');
+        }
+    }
 }
 
 // ============================================================
@@ -1323,6 +1401,7 @@ function init() {
     renderRecentlyPlayedBadge();
     setupVolume();
     setupMediaSession();
+    restoreSleepTimer();
     setupSidebar();
     setupKeyboard();
 
@@ -1394,6 +1473,41 @@ function init() {
         $('playerMoreDropdown').classList.remove('open');
         if (state.playingStationData) shareStation(state.playingStationData);
         else showToast('Pilih stasiun terlebih dahulu');
+    });
+
+    $('sleepTimerBtn').addEventListener('click', function() {
+        $('playerMoreDropdown').classList.remove('open');
+        showSleepTimerModal();
+    });
+
+    $('sleepTimerClose').addEventListener('click', function() {
+        $('sleepTimerModal').style.display = 'none';
+    });
+    $('sleepTimerModal').addEventListener('click', function(e) {
+        if (e.target === $('sleepTimerModal')) $('sleepTimerModal').style.display = 'none';
+    });
+
+    document.querySelectorAll('.sleep-option').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var minutes = parseInt(btn.dataset.minutes, 10);
+            startSleepTimer(minutes);
+            $('sleepTimerModal').style.display = 'none';
+        });
+    });
+
+    $('sleepTimerCustomBtn').addEventListener('click', function() {
+        var input = $('sleepTimerCustom');
+        var val = parseInt(input.value, 10);
+        if (val > 0) { startSleepTimer(val); $('sleepTimerModal').style.display = 'none'; }
+    });
+    $('sleepTimerCustom').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); $('sleepTimerCustomBtn').click(); }
+    });
+
+    $('sleepTimerCancelBtn').addEventListener('click', function() {
+        cancelSleepTimer();
+        showToast('Timer dibatalkan');
+        $('sleepTimerModal').style.display = 'none';
     });
 
     $('playerMoreBtn').addEventListener('click', function(e) {

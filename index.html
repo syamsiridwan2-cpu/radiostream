@@ -240,6 +240,39 @@
         }
         .playlist-sidebar-item:hover .playlist-rename-btn { opacity: 1; }
         .playlist-rename-btn:hover { color: var(--accent); }
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; padding: 16px;
+        }
+        .modal {
+            background: var(--bg-card); border-radius: var(--radius);
+            width: 100%; max-width: 360px; box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 20px; border-bottom: 1px solid var(--border);
+        }
+        .modal-header h3 { font-size: 1.1rem; font-weight: 600; margin: 0; }
+        .modal-close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted); padding: 4px 8px; }
+        .modal-body { padding: 20px; }
+        .sleep-timer-options { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .sleep-option {
+            flex: 1; min-width: 80px; padding: 10px; background: var(--bg-hover);
+            border: 1px solid var(--border); border-radius: 8px; cursor: pointer;
+            font-size: 0.85rem; font-weight: 500; color: var(--text-primary);
+            transition: all 0.2s; text-align: center;
+        }
+        .sleep-option:hover { border-color: var(--accent); background: var(--accent-light); }
+        .sleep-option.active { border-color: var(--accent); background: var(--accent); color: white; }
+        .sleep-timer-custom { display: flex; gap: 8px; margin-bottom: 12px; }
+        .sleep-timer-custom input {
+            flex: 1; padding: 10px 12px; border: 1px solid var(--border);
+            border-radius: 6px; background: var(--bg-input); color: var(--text-primary);
+            font-size: 0.9rem; outline: none;
+        }
+        .btn-primary { padding: 10px 20px; background: var(--accent); color: white; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; }
+        .btn-danger { padding: 10px 20px; background: #ef4444; color: white; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -364,11 +397,40 @@
                 <button id="addToPlaylistBtn" class="dropdown-item" aria-label="Tambah ke Playlist"><span class="di-icon">📋</span><span class="di-label">Tambah ke Playlist</span></button>
                 <button id="toggleFavBtn" class="dropdown-item" aria-label="Favorit"><span class="di-icon">⭐</span><span class="di-label">Favorit</span></button>
                 <button id="shareStationBtn" class="dropdown-item" aria-label="Share"><span class="di-icon">📤</span><span class="di-label">Share</span></button>
+                <button id="sleepTimerBtn" class="dropdown-item" aria-label="Sleep Timer"><span class="di-icon">⏰</span><span class="di-label">Sleep Timer</span></button>
             </div>
         </div>
     </div>
 
     <audio id="audio" preload="none"></audio>
+
+    <!-- Sleep Timer Modal -->
+    <div class="modal-overlay" id="sleepTimerModal" style="display:none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>⏰ Sleep Timer</h3>
+                <button class="modal-close" id="sleepTimerClose">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="color:var(--text-muted);margin:0 0 12px 0;font-size:0.85rem;">Audio akan berhenti otomatis setelah:</p>
+                <div class="sleep-timer-options" id="sleepTimerOptions">
+                    <button class="sleep-option" data-minutes="15">15 menit</button>
+                    <button class="sleep-option" data-minutes="30">30 menit</button>
+                    <button class="sleep-option" data-minutes="45">45 menit</button>
+                    <button class="sleep-option" data-minutes="60">60 menit</button>
+                    <button class="sleep-option" data-minutes="90">90 menit</button>
+                </div>
+                <div class="sleep-timer-custom">
+                    <input type="number" id="sleepTimerCustom" min="1" max="999" placeholder="Kustom (menit)" />
+                    <button id="sleepTimerCustomBtn" class="btn-primary">Set</button>
+                </div>
+                <div id="sleepTimerActive" style="display:none;margin-top:12px;">
+                    <p style="margin:0 0 8px 0;">⏳ Timer aktif: <strong id="sleepTimerCountdown"></strong></p>
+                    <button id="sleepTimerCancelBtn" class="btn-danger">Batalkan Timer</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <style>
         .version-badge {
