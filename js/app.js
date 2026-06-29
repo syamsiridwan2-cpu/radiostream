@@ -4,7 +4,7 @@
  * Fixed: favorites (use stationuuid), playlists, playing indicator
  */
 
-const APP_VERSION = '6.6.3';
+const APP_VERSION = '6.7.0';
 console.log('%c RadioStream v' + APP_VERSION, 'font-size:20px; font-weight:bold; color:#1a73e8;');
 
 // ============================================================
@@ -1243,13 +1243,29 @@ function init() {
     });
 
     $('toggleFavBtn').addEventListener('click', function() {
+        $('playerMoreDropdown').classList.remove('open');
         if (state.playingStationId) handleToggleFavorite(state.playingStationId);
         else showToast('Pilih stasiun terlebih dahulu');
     });
 
     $('shareStationBtn').addEventListener('click', function() {
+        $('playerMoreDropdown').classList.remove('open');
         if (state.playingStationData) shareStation(state.playingStationData);
         else showToast('Pilih stasiun terlebih dahulu');
+    });
+
+    $('playerMoreBtn').addEventListener('click', function(e) {
+        e.stopPropagation();
+        $('playerMoreDropdown').classList.toggle('open');
+    });
+
+    $('addToPlaylistBtn').addEventListener('click', function() {
+        $('playerMoreDropdown').classList.remove('open');
+        if (state.playingStationId) {
+            var station = state.stations.find(function(s) { return stationUuid(s) === state.playingStationId; });
+            if (station) handleAddToPlaylist(station);
+            else showToast('Pilih stasiun terlebih dahulu');
+        } else showToast('Pilih stasiun terlebih dahulu');
     });
 
     state.themeToggle.addEventListener('click', toggleTheme);
@@ -1257,6 +1273,11 @@ function init() {
     document.addEventListener('click', function(e) {
         if (!state.searchInput.contains(e.target) && !state.suggestions.contains(e.target)) {
             state.suggestions.classList.remove('active');
+        }
+        var moreWrap = document.querySelector('.player-more-wrap');
+        if (moreWrap && !moreWrap.contains(e.target)) {
+            var dd = $('playerMoreDropdown');
+            if (dd) dd.classList.remove('open');
         }
     });
 
