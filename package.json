@@ -1,5 +1,5 @@
 {
-  "name": "radiotube",
+  "name": "radiostream",
   "version": "6.9.0",
   "description": "A radio streaming web app with YouTube Music-style interface",
   "main": "index.html",

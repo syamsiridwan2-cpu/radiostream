@@ -3,7 +3,7 @@
  * Network-first, fallback offline page
  */
 
-const CACHE_NAME = 'radiotube-static-v4';
+const CACHE_NAME = 'radiostream-static-v4';
 const OFFLINE_URL = './index.html';
 
 self.addEventListener('install', (event) => {

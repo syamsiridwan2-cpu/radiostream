@@ -41,8 +41,8 @@ A radio streaming web app with modern dark theme interface.
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/syamsiridwan2-cpu/radiotube.git
-cd radiotube
+git clone https://github.com/syamsiridwan2-cpu/radiostream.git
+cd radiostream
 ```
 
 2. Open `index.html` in your browser
@@ -56,7 +56,7 @@ npx serve .
 
 ## Live Demo
 
-https://syamsiridwan2-cpu.github.io/radiotube/
+https://syamsiridwan2-cpu.github.io/radiostream/
 
 ## Usage
 
@@ -80,7 +80,7 @@ https://syamsiridwan2-cpu.github.io/radiotube/
 ## Project Structure
 
 ```
-radiotube/
+radiostream/
 ├── index.html              # Main HTML
 ├── css/
 │   ├── variables.css       # CSS custom properties

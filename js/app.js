@@ -1198,7 +1198,7 @@ function setupKeyboard() {
 function shareStation(station) {
     var name = station.name || 'Radio Station';
     var url = station.urlResolved || station.url;
-    var shareUrl = 'https://syamsiridwan2-cpu.github.io/radiotube/?station=' + encodeURIComponent(stationUuid(station));
+    var shareUrl = 'https://syamsiridwan2-cpu.github.io/radiostream/?station=' + encodeURIComponent(stationUuid(station));
     var shareData = {
         title: name,
         text: 'Dengarkan ' + name + ' di RadioStream!',
