@@ -23,6 +23,9 @@ self.addEventListener('fetch', (event) => {
     if (event.request.method !== 'GET') return;
     const url = new URL(event.request.url);
 
+    // skip non-http schemes (chrome-extension, etc)
+    if (!url.protocol.startsWith('http')) return;
+
     // API - always network, no fallback
     if (url.hostname.includes('radio-browser.info')) {
         event.respondWith(fetch(event.request));
@@ -32,12 +35,18 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
         fetch(event.request)
             .then((response) => {
-                if (response && response.status === 200) {
+                if (response && response.status === 200 && response.type === 'basic') {
                     const clone = response.clone();
                     caches.open(CACHE_NAME).then((c) => c.put(event.request, clone));
                 }
                 return response;
             })
-            .catch(() => caches.match(event.request).then((cached) => cached || new Response('Offline', { status: 503, statusText: 'Offline' })))
+            .catch(() => {
+                // navigation requests → offline page; others → nothing
+                if (event.request.mode === 'navigate') {
+                    return caches.match(OFFLINE_URL);
+                }
+                return new Response('', { status: 408, statusText: 'Request Timeout' });
+            })
     );
 });
