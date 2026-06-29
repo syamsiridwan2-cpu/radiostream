@@ -187,11 +187,21 @@
     right: 16px;
     background: none;
     border: none;
-    font-size: 1.2rem;
     cursor: pointer;
     transition: transform 0.2s;
     color: var(--text-muted);
-    z-index: 2;
+    z-index: 3;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.station-card .fav-btn svg {
+    width: 18px;
+    height: 18px;
+    display: block;
 }
 
 .station-card .fav-btn:hover {
@@ -214,12 +224,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
     cursor: pointer;
     transition: all 0.2s;
     color: var(--text-muted);
-    z-index: 2;
+    z-index: 3;
     box-shadow: var(--shadow);
+    opacity: 1;
+}
+
+.station-card .share-btn svg {
+    width: 16px;
+    height: 16px;
+    display: block;
 }
 
 .station-card .share-btn:hover {
@@ -251,6 +267,12 @@
 .station-card:hover .add-playlist-btn {
     opacity: 1;
     transform: scale(1.1);
+}
+
+.station-card .add-playlist-btn svg {
+    width: 16px;
+    height: 16px;
+    display: block;
 }
 
 .station-card .add-playlist-btn:hover {
